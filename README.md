@@ -61,4 +61,5 @@ Follow steps to send Email using node.js
           ]
         }
    
+   After Creating the User --->Write down Access key and Secret Key that we will use to send Email 
    
