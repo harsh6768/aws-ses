@@ -1,13 +1,13 @@
-let AWS = require("aws-sdk");
-let path=require('path');
+let AWS                     =       require("aws-sdk");
+let path                    =       require("path");
 
-let configPath=path.join(__dirname,'../config/config.json');
+let configPath = path.join(__dirname, "../config/config.json");
 
 AWS.config.loadFromPath(configPath);
 // Instantiate SES.
 var ses = new AWS.SES();
 
-// Edit this with YOUR email address.
+// Edit this with YOUR email address which are verified on aws ses plateform
 var email = "harshchaurasiya6768@gmail.com";
 let email1 = "harshchaurasiyahc123@gmail.com";
 
@@ -23,10 +23,17 @@ let verifyEmail = (req, res) => {
     if (err) res.send(err);
     else res.send(data);
   });
-
 };
 
-let listVerifiedEmails = (req, res) => {};
+let listVerifiedEmails = (req, res) => {
+  ses.listVerifiedEmailAddresses(function(err, data) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send(data);
+    }
+  });
+};
 
 let deleteVerifiedEmail = (req, res) => {
   // const email = req.body.email;
@@ -57,7 +64,13 @@ let createEmailTemplate = (req, res) => {
   });
 };
 
-let getListOfTemplates = (req, res) => {};
+let getListOfTemplates = (req, res) => {
+
+  ses.listCustomVerificationEmailTemplates((err,data)=>{
+    if(err) res.send(err.message);
+    else res.send(data);
+  })
+};
 
 let updateTemplate = (req, res) => {};
 
@@ -200,6 +213,49 @@ let sendBulkWithCustomisedEmail = (req, res) => {
     });
 };
 
+/**
+ * createCustomTemplateEmailVerification won't work because we are in sandbox
+ * @param {*} req 
+ * @param {*} res 
+ */
+let createCustomTemplateForEmailVerification= (req, res) => {
+  let params = {
+    TemplateName: "A-VerifyEmail-2",
+    FromEmailAddress: "harshchaurasiya6768@gmail.com",
+    TemplateSubject: "Please confirm your email address",
+    TemplateContent: `<html>
+                        <head></head>
+                        <body style="font-family:sans-serif;">
+                          <h1 style="text-align:center">Ready to start sending 
+                          email with ProductName?</h1>
+                          <p>We here at Example Corp are happy to have you on
+                            board! There's just one last step to complete before
+                            you can start sending email. Just click the following
+                            link to verify your email address. Once we confirm that 
+                            you're really you, we'll give you some additional 
+                            information to help you get started with ProductName.</p>
+                        </body>
+                        </html>`,
+    SuccessRedirectionURL: "https://www.example.com/verifysuccess",
+    FailureRedirectionURL: "https://www.example.com/verifyfailure"
+  };
+
+  var templatePromise = new AWS.SES({ apiVersion: "2010-12-01" })
+    .createCustomVerificationEmailTemplate(params)
+    .promise();
+
+  // Handle promise's fulfilled/rejected states
+  templatePromise
+    .then(function(data) {
+      console.log(data);
+      res.send(data);
+    })
+    .catch(function(err) {
+      console.error(err, err.stack);
+      res.send(err);
+    });
+}
+
 module.exports = {
   verifyEmail,
   listVerifiedEmails,
@@ -210,5 +266,6 @@ module.exports = {
   sendEmail,
   sendTemplateEmail,
   createCustomisedEmailTemplate,
-  sendBulkWithCustomisedEmail
+  sendBulkWithCustomisedEmail,
+  createCustomTemplateForEmailVerification
 };
