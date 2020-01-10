@@ -22,8 +22,8 @@ Follow steps to send Email using node.js
    
    
    2.3 Click Next
-   
    <img src="   https://github.com/harsh6768/upload-file-s3/blob/master/Images/Screenshot%20from%202019-12-04%2017-35-02.png" alt="">
+   
    <br>
    
    2.4 Click Next
